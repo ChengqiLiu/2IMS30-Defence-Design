@@ -1,6 +1,6 @@
 # 2IMS30 Defence Design of HELLO/DIO Flooding Attack
 
-**Group 6:  Groote Woortmann Arthur (a.n.groote.woortmann@student.tue.nl), Ruxandra Hristache (r.hristache@student.tue.nl), Chengqi Liu (c.liu@student.tue.nl)**
+**Group 6:  Groote Woortmann Arthur (a.n.groote.woortmann@student.tue.nl), Ruxandra Hristache (ruxi.hristache@yahoo.com), Chengqi Liu (chengqiliu946@gmail.com)**
 
 This code uses the double sliding window method to detect the HELLO/DIO flooding attack. 
 
