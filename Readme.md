@@ -8,7 +8,7 @@ To run this detection, first export the pcapng format file captured by Wireshark
 
 Commenting out lines 69 and 70 of the code can overlap the two bar charts, which may make the comparison results more intuitive.
 
-Commenting out line 60 and uncommenting lines 56 to 59 will display the node names on the x-axis. However, this can result in the names difficult to read if there are too many DIO packages, and require zooming in to see them.
+Commenting out line 60 and uncommenting lines 56 to 59 will display the node names on the x-axis. This can only be used with two bars chart overlapped. However, this can result in the node names hard to read if there are too many DIO packages, and require zooming in to see them.
 
  
 
