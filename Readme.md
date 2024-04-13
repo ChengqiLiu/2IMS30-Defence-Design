@@ -1,16 +1,14 @@
-# 2IMS30 Defence Design of HELLO/DIO Flooding Attack
+# 2IMS30 Final Assignment
+
+# HELLO/DIO Flooding Attack
 
 **Group 6:  Groote Woortmann Arthur (arthurgrootewoortmann@gmail.com), Ruxandra Hristache (ruxi.hristache@yahoo.com), Chengqi Liu (chengqiliu946@gmail.com)**
 
-This code uses the double sliding window method to detect the HELLO/DIO flooding attack. 
+The configuration code of the Malicious Node can be found in the folder "Attack-Design". The configurations of the remaining nodes (Border-Router, Node 1, Node2) are the same as Lab 3.
 
-To run this detection, first export the pcapng format file captured by Wireshark into a csv file. Name the csv file "sensniff_result.csv" and put it in the same folder as the Python code, then run the code.
+The defence design code can be found in the folder "Defence-Design".
 
-Commenting out lines 69 and 70 of the code can overlap the two bar charts, which may make the comparison results more intuitive.
-
-Commenting out line 60 and uncommenting lines 56 to 59 will display the node names on the x-axis. This can only be used with two bars chart overlapped. However, this can result in the node names hard to read if there are too many DIO packages, and require zooming in to see them.
-
- 
+The final report can be found in the document "2IMS30___Final_Assignment Group 6.pdf".
 
 
 
