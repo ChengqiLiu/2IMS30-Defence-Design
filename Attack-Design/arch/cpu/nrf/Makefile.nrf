@@ -1,0 +1,191 @@
+### CPU-dependent directories
+CONTIKI_CPU_DIRS += .
+CONTIKI_CPU_DIRS += dev
+CONTIKI_CPU_DIRS += sys
+CONTIKI_CPU_DIRS += os
+CONTIKI_CPU_DIRS += net
+
+### CPU-dependent source files
+CONTIKI_CPU_SOURCEFILES += rtimer-arch.c
+CONTIKI_CPU_SOURCEFILES += watchdog-arch.c
+CONTIKI_CPU_SOURCEFILES += clock-arch.c
+CONTIKI_CPU_SOURCEFILES += dbg-arch.c
+CONTIKI_CPU_SOURCEFILES += gpio-hal-arch.c
+CONTIKI_CPU_SOURCEFILES += int-master-arch.c
+CONTIKI_CPU_SOURCEFILES += random-arch.c
+CONTIKI_CPU_SOURCEFILES += nrf-ieee-driver-arch.c
+CONTIKI_CPU_SOURCEFILES += uarte-arch.c
+CONTIKI_CPU_SOURCEFILES += temp-arch.c
+CONTIKI_CPU_SOURCEFILES += linkaddr-arch.c
+CONTIKI_CPU_SOURCEFILES += reset-arch.c
+CONTIKI_CPU_SOURCEFILES += slip-arch.c
+
+ifeq ($(TRUSTZONE_SECURE_BUILD),1)
+  CFLAGS += -DNRF_TRUSTZONE_SECURE=1
+  CONTIKI_CPU_SOURCEFILES += spu.c
+else ifeq ($(TRUSTZONE_SECURE_BUILD),0)
+  CFLAGS += -DNRF_TRUSTZONE_NONSECURE=1
+endif
+
+# Overrides
+CONTIKI_CPU_SOURCEFILES += random.c
+
+# arm
+CONTIKI_CPU_DIRS += arm/
+CONTIKI_CPU_SOURCEFILES += hardfault-handler.c
+
+CONTIKI_SOURCEFILES += $(CONTIKI_CPU_SOURCEFILES)
+
+CFLAGS += -DNRFX_WDT_ENABLED
+CFLAGS += -DNRFX_WDT0_ENABLED
+CFLAGS += -DNRFX_RTC_ENABLED
+CFLAGS += -DNRFX_RTC0_ENABLED
+CFLAGS += -DNRFX_CLOCK_ENABLED
+CFLAGS += -DNRFX_POWER_ENABLED
+CFLAGS += -DNRFX_GPIOTE_ENABLED
+CFLAGS += -DNRFX_ATOMIC_USE_BUILT_IN
+CFLAGS += -DNRFX_UARTE_ENABLED
+CFLAGS += -DNRFX_UARTE0_ENABLED
+
+ifeq ($(CLANG),0)
+  LDFLAGS += --specs=nano.specs
+endif
+LDFLAGS += -Wl,--defsym=_stack=end
+LDFLAGS += -Wl,--defsym=_stack_origin=__stack
+LDFLAGS += -Wl,--defsym=_heap=end
+LDFLAGS += -Wl,--defsym=_eheap=__stack
+
+TARGET_LIBFILES += -lgcc -lc -lnosys
+
+#source common to all targets
+NRFX_C_SRCS += $(NRFX_ROOT)/drivers/src/nrfx_wdt.c
+NRFX_C_SRCS += $(NRFX_ROOT)/drivers/src/nrfx_clock.c
+NRFX_C_SRCS += $(NRFX_ROOT)/drivers/src/nrfx_rtc.c
+NRFX_C_SRCS += $(NRFX_ROOT)/drivers/src/nrfx_gpiote.c
+NRFX_C_SRCS += $(NRFX_ROOT)/drivers/src/nrfx_power.c
+NRFX_C_SRCS += $(NRFX_ROOT)/drivers/src/nrfx_uarte.c
+NRFX_C_SRCS += $(NRFX_ROOT)/drivers/src/nrfx_usbreg.c
+NRFX_C_SRCS += $(NRFX_ROOT)/drivers/src/nrfx_ipc.c
+
+NRFX_C_SRCS += $(NRFX_ROOT)/soc/nrfx_atomic.c
+
+NRFX_C_SRCS += $(NRFX_ROOT)/helpers/nrfx_flag32_allocator.c
+
+#assembly files common to all targets
+NRFX_ASM_SRCS += 
+
+CONTIKI_SOURCEFILES += $(notdir $(NRFX_C_SRCS))
+CONTIKI_SOURCEFILES += $(notdir $(NRFX_ASM_SRCS))
+
+#includes common to all targets
+NRFX_INC_PATHS += .
+NRFX_INC_PATHS += templates
+NRFX_INC_PATHS += drivers/src
+NRFX_INC_PATHS += drivers/include
+NRFX_INC_PATHS += soc
+NRFX_INC_PATHS += hal
+NRFX_INC_PATHS += helpers
+
+EXTERNALDIRS += $(addprefix $(NRFX_ROOT)/, $(NRFX_INC_PATHS))
+
+## Tinyusb
+ifeq ($(NRF_NATIVE_USB),1)
+  CFLAGS += -DCFG_TUSB_MCU=OPT_MCU_NRF5X
+  #nrf specific
+  TINYUSB_C_SRCS += $(TINYUSB_ROOT)/src/portable/nordic/nrf5x/dcd_nrf5x.c
+
+  TINYUSB_INC_PATHS += src/portable/nordic/nrf5x/
+
+  #source common
+  TINYUSB_C_SRCS += $(TINYUSB_ROOT)/src/tusb.c
+  TINYUSB_C_SRCS += $(TINYUSB_ROOT)/src/common/tusb_fifo.c
+  TINYUSB_C_SRCS += $(TINYUSB_ROOT)/src/device/usbd.c
+  TINYUSB_C_SRCS += $(TINYUSB_ROOT)/src/device/usbd_control.c
+  TINYUSB_C_SRCS += $(TINYUSB_ROOT)/src/class/cdc/cdc_device.c
+
+  #assembly files
+  TINYUSB_ASM_SRCS += 
+
+  CONTIKI_SOURCEFILES += $(notdir $(TINYUSB_C_SRCS))
+  CONTIKI_SOURCEFILES += $(notdir $(TINYUSB_ASM_SRCS))
+
+  #includes common to all targets
+  TINYUSB_INC_PATHS += src/
+  TINYUSB_INC_PATHS += src/common/
+  TINYUSB_INC_PATHS += src/device/
+  TINYUSB_INC_PATHS += src/class/cdc/
+
+  EXTERNALDIRS += $(addprefix $(TINYUSB_ROOT)/, $(TINYUSB_INC_PATHS))
+
+  # USB
+
+  CONTIKI_CPU_SOURCEFILES += usb.c
+  CONTIKI_CPU_SOURCEFILES += usb_descriptors.c
+  CONTIKI_CPU_SOURCEFILES += usb-arch.c
+
+  CFLAGS += -DPLATFORM_DBG_CONF_USB=1
+  CFLAGS += -DPLATFORM_SLIP_ARCH_CONF_USB=1
+  CFLAGS += -DNRF_NATIVE_USB=1
+endif
+
+CONTIKI_CPU_DIRS += usb/
+
+CONTIKI_SOURCEFILES += $(CONTIKI_CPU_SOURCEFILES)
+
+# Upload via J-Link using nrfjprog 
+
+.PHONY: nrf-upload-sequence
+
+NRFJPROG ?= nrfjprog
+NRFUTIL ?= nrfutil
+
+ifdef NRF_UPLOAD_SN
+  NRFJPROG_OPTIONS += --snr $(NRF_UPLOAD_SN)
+endif
+
+%.upload: $(OUT_HEX)
+ifeq (, $(shell which $(NRFJPROG)))
+	$(error Could not find nrfjprog "$(NRFJPROG)", please install it)
+else
+	$(NRFJPROG) $(NRFJPROG_OPTIONS) $(NRFJPROG_FLAGS) --sectorerase --verify --program $<
+	$(NRFJPROG) $(NRFJPROG_OPTIONS) $(NRFJPROG_FLAGS) --reset
+endif
+
+# Upload to all attached boards
+# This approach is similar to the sky platform
+
+# Number of boards to program in parallel
+NUMPAR=4
+
+# Only get serial numbers if nrfjprog is installed
+ifneq ($(filter nrf-upload-sequence,$(MAKECMDGOALS)),)
+  ifneq (, $(shell which $(NRFJPROG)))
+    NRF_SNRS := $(shell $(NRFJPROG) -i)
+  endif
+endif
+
+nrf-upload-snr.%:
+	$(NRFJPROG) $(NRFJPROG_OPTIONS) --snr $* --sectorerase --verify --program $(HEX_FILE)
+	$(NRFJPROG) $(NRFJPROG_OPTIONS) --snr $* --reset
+
+nrf-upload-sequence: $(foreach SNR, $(NRF_SNRS), nrf-upload-snr.$(SNR))
+	@echo Done
+
+%.upload-all: $(OUT_HEX)
+ifeq (, $(shell which $(NRFJPROG)))
+	$(error Could not find nrfjprog "$(NRFJPROG)", please install it)
+else
+	$(MAKE) HEX_FILE=$< -j $(NUMPAR) nrf-upload-sequence
+endif
+
+# DFU Upload for dongles
+PORT ?= /dev/ttyACM0
+DFU_FLAGS = -p $(PORT)
+
+%.dfu-upload: $(OUT_HEX)
+ifeq (, $(shell which $(NRFUTIL)))
+	$(error Could not find nrfutil "$(NRFUTIL)", please install it first)
+else
+	$(NRFUTIL) pkg generate --hw-version 52 --sd-req 0x00 --debug-mode --application $< $(BUILD_DIR_BOARD)/nrf52840_dfu_image.zip
+	$(NRFUTIL) dfu usb-serial $(DFU_FLAGS) -pkg $(BUILD_DIR_BOARD)/nrf52840_dfu_image.zip
+endif

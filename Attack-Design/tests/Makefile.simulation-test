@@ -1,0 +1,80 @@
+# Copyright (c) 2012, Thingsquare, www.thingsquare.com.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. Neither the name of the Institute nor the names of its contributors
+#    may be used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+
+SHELL := /bin/bash
+
+all: summary
+
+TESTS=$(wildcard ??-*.csc)
+TESTLOGS=$(sort $(patsubst %.csc,%.testlog,$(TESTS)))
+
+# The random seed to start from
+BASESEED ?= 1
+# The number of runs (with different random seeds)
+RUNCOUNT ?= 1
+
+CONTIKI ?= ../..
+
+GRADLE ?= $(CONTIKI)/tools/cooja/gradlew
+
+Q ?= @
+
+# The build phase ~never fails for Cooja tests, so silence the build system.
+QUIET ?= 1
+
+# Prevent make from printing "Entering/Leaving directory <..>".
+# This cannot be done in Makefile.include because MAKEFLAGS already contains
+# -w at that point. ContikiMoteType clears its environment before compiling
+# so the problem will only be seen for MSP430-based motes.
+ifneq ($(CI),true)
+ifeq ($(QUIET),1)
+  MAKEFLAGS += --no-print-directory
+  export QUIET
+endif
+endif
+
+.PHONY: all clean tests
+
+# Perform a bash loop of $(RUNCOUNT) iterations.
+# Successful simulations do nothing, failures appends test+seed to summary.
+tests: $(TESTS)
+	@for (( SEED=$(BASESEED); SEED < $$(( $(BASESEED) + $(RUNCOUNT) )); SEED++ )); do \
+          $(GRADLE) --no-watch-fs --parallel --build-cache -p $(CONTIKI)/tools/cooja run -Dslf4j.provider=ch.qos.logback.classic.spi.LogbackServiceProvider --args="--no-gui --contiki=$(realpath $(CONTIKI)) --logdir=$(dir $(realpath $<)) --random-seed=$$SEED $(realpath $^)" || \
+            echo "TEST FAIL: $^ seed $$SEED" >> summary; \
+         done
+
+# Last line of rule checks for existence of the file summary to decide if
+# the test succeeded. Based on that, some output is echoed followed by using
+# the right exit code.
+summary: clean
+	@$(MAKE) tests
+	@echo "========== Summary =========="
+	@([ ! -f summary ] && echo "All tests OK" && touch summary) || \
+          (echo "Failures:" && cat summary && false)
+
+clean:
+	$(Q)rm -f *.*log report summary

@@ -1,0 +1,3 @@
+32-Bit MCU SDK 6.3.0.0
+- Added support for BRD2204C board.
+
