@@ -2,7 +2,7 @@
 
 # HELLO/DIO Flooding Attack
 
-**Group 6:  Groote Woortmann Arthur (arthurgrootewoortmann@gmail.com), Ruxandra Hristache (ruxi.hristache@yahoo.com), Chengqi Liu (chengqiliu946@gmail.com)**
+**Group 6:  Groote Woortmann Arthur (arthurgrootewoortmann@gmail.com), Ruxandra Hristache, Chengqi Liu (chengqiliu946@gmail.com)**
 
 Our final report can be found in the document "2IMS30___Final_Assignment Group 6.pdf".
 
